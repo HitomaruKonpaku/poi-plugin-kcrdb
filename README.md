@@ -1,13 +1,13 @@
-# `poi-plugin-tsundb`
+# `poi-plugin-kcrdb`
 
-[![Version](https://img.shields.io/npm/v/poi-plugin-tsundb.svg)](https://www.npmjs.com/package/poi-plugin-tsundb)
-[![Downloads](https://img.shields.io/npm/dm/poi-plugin-tsundb.svg)](https://www.npmjs.com/package/poi-plugin-tsundb)
+[![Version](https://img.shields.io/npm/v/poi-plugin-kcrdb.svg)](https://www.npmjs.com/package/poi-plugin-kcrdb)
+[![Downloads](https://img.shields.io/npm/dm/poi-plugin-kcrdb.svg)](https://www.npmjs.com/package/poi-plugin-kcrdb)
 
-[TsunDB](https://tsundb.kc3.moe/) data submission plugin for [Poi](https://poi.io/).
+[KCRDB](https://kcrdb.hitomaru.dev) data submission plugin for [Poi](https://poi.io/).
 
 ## Install
 
-Paste package name (`poi-plugin-tsundb`) in the plugins tab and click the install button.
+Paste package name (`poi-plugin-kcrdb`) in the plugins tab and click the install button.
 
 ![Install](https://i.imgur.com/G4wTCLS.png)
 

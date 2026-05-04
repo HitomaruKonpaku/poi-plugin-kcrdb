@@ -41,7 +41,7 @@ yarn link
 and inside [`appData`](https://github.com/electron/electron/blob/master/docs/api/app.md#appgetpathname)`/poi/plugins`:
 
 ```sh
-yarn link poi-plugin-tsundb
+yarn link poi-plugin-kcrdb
 ```
 
 Run Poi with `TSUNDB_API_URL` to connect to a custom server:

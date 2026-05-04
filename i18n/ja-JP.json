@@ -1,6 +1,6 @@
 {
   "Plugin": {
-    "Title": "TsunDB Reporter",
-    "Description": "Report data to [TsunDB](https://tsundb.kc3.moe/)"
+    "Title": "KCRDB",
+    "Description": "Report data to [KCRDB](https://kcrdb.hitomaru.dev)"
   }
 }

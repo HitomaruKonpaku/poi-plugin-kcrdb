@@ -78,6 +78,7 @@ export class KCRDB implements Handler {
       'api_req_kousyou/remodel_slotlist': [this.processRemodelSlotList],
       'api_req_kousyou/remodel_slotlist_detail': [this.processRemodelSlotListDetail],
       'api_req_kousyou/remodel_slot': [this.processRemodelSlot],
+      'api_req_kousyou/remodel_slot_recover': [this.processRemodelSlotRecover],
     }
 
     const handlers = dict[path] || []
@@ -89,6 +90,7 @@ export class KCRDB implements Handler {
       'api_req_kousyou/remodel_slotlist': [this.processRemodelRequest],
       'api_req_kousyou/remodel_slotlist_detail': [this.processRemodelRequest],
       'api_req_kousyou/remodel_slot': [this.processRemodelRequest],
+      'api_req_kousyou/remodel_slot_recover': [this.processRemodelRequest],
     }
 
     const handlers = dict[path] || []
@@ -111,10 +113,10 @@ export class KCRDB implements Handler {
         },
         body: JSON.stringify(data),
       })
-      console.debug(`[KCRDB] send: OK`, { path })
+      console.debug(`[KCRDB] send: OK`, { path, data })
     } catch (error) {
       if (error instanceof Error) {
-        console.error(`[KCRDB] send: ${error.message}`, { path, error })
+        console.error(`[KCRDB] send: ${error.message}`, { path, data, error })
       }
     }
   }
@@ -253,6 +255,27 @@ export class KCRDB implements Handler {
     }
 
     await this.send('remodel_slot', reqBody)
+  }
+
+  /**
+   * On akashi improvement stars removal procceeded
+   */
+  private async processRemodelSlotRecover(body: any, postBody: any) {
+    const info = KCRDB.getInfo()
+    const reqBody = this.createRemodelPostBody()
+    reqBody.api_id = Number(postBody.api_menu_id)
+    const equip = info.equips[postBody.api_slot_id]
+    reqBody.api_slot_id = equip?.api_slotitem_id
+    reqBody.api_slot_level = equip?.api_level || 0
+    reqBody.api_dev_num = Number(postBody.api_dev_num)
+    reqBody.api_recover_flag = (body.api_data || {}).api_recover_flag || 0
+
+    const canSend = reqBody.flag_ship_id && reqBody.api_slot_level && body.api_data && equip
+    if (!canSend) {
+      return
+    }
+
+    await this.send('remodel_slot_recover', reqBody)
   }
 
   //#endregion

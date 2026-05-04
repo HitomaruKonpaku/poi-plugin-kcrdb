@@ -1,24 +1,21 @@
 {
-  "name": "poi-plugin-tsundb",
-  "version": "0.0.22",
-  "description": "TsunDB data submission plugin for Poi",
+  "name": "poi-plugin-kcrdb",
+  "version": "0.0.1",
+  "description": "KCRDB data submission plugin for Poi",
   "keywords": [
     "kancolle",
     "poi",
     "poi-plugin",
-    "tsundb"
+    "kcrdb"
   ],
   "license": "MIT",
   "author": {
-    "name": "gakada",
-    "url": "https://github.com/gakada"
+    "name": "HitomaruKonpaku",
+    "url": "https://github.com/HitomaruKonpaku"
   },
-  "contributors": [
-    "sorewachigauyo (https://github.com/sorewachigauyo)"
-  ],
-  "homepage": "https://github.com/kcwiki/poi-plugin-tsundb#readme",
-  "bugs": "https://github.com/kcwiki/poi-plugin-tsundb/issues",
-  "repository": "kcwiki/poi-plugin-tsundb",
+  "homepage": "https://github.com/HitomaruKonpaku/poi-plugin-kcrdb#README",
+  "bugs": "https://github.com/HitomaruKonpaku/poi-plugin-kcrdb/issues",
+  "repository": "HitomaruKonpaku/poi-plugin-kcrdb",
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -27,9 +24,9 @@
   "scripts": {
     "format": "prettier --log-level warn --write '**/*.{js,json,md,ts,yaml,yml}'",
     "lint": "eslint . --ext ts --fix",
-    "build": "rm -rf dist* && tsc && tsc -b tsconfig.test.json && cp package.json dist-test && cp -r test/data dist-test/test",
+    "build": "rm -rf dist && tsc",
     "test": "yarn format && yarn lint && yarn build && TSUNDB_API_URL=http://localhost:12345 node dist-test/test",
-    "prepack": "yarn test",
+    "prepack": "yarn format && yarn lint && yarn build",
     "up": "yarn upgrade --latest"
   },
   "devDependencies": {
