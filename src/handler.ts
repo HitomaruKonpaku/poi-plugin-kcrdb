@@ -7,6 +7,6 @@ export interface HandlerDetail {
 }
 
 export default interface Handler {
-  handle(path: string, body: any, postBody: any, detail: HandlerDetail): void
-  handleRequest?(path: string, body: any, postBody: any, detail: HandlerDetail): void
+  handle(path: string, body: any, reqBody: any, detail: HandlerDetail): void
+  handleRequest?(path: string, body: any, detail: HandlerDetail): void
 }

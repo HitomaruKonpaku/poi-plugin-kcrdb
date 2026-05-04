@@ -8,7 +8,7 @@ const normalizePath = (s: string) => s.replace('/kcsapi/', '')
 export const handleRequest = (e: any) => {
   for (const reporter of reporters) {
     try {
-      reporter.handleRequest?.(normalizePath(e.detail.path), e.detail.body, e.detail.postBody, e.detail)
+      reporter.handleRequest?.(normalizePath(e.detail.path), e.detail.body, e.detail)
     } catch (err) {
       if (err instanceof Error) {
         console.error(err.stack)
