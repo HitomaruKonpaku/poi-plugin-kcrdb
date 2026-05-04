@@ -12,6 +12,8 @@ export const handleRequest = (e: any) => {
     } catch (err) {
       if (err instanceof Error) {
         console.error(err.stack)
+      } else {
+        console.error(err)
       }
     }
   }
@@ -24,6 +26,8 @@ export const handleResponse = (e: any) => {
     } catch (err) {
       if (err instanceof Error) {
         console.error(err.stack)
+      } else {
+        console.error(err)
       }
     }
   }
