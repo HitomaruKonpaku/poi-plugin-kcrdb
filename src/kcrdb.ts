@@ -24,6 +24,28 @@ export class KCRDB implements Handler {
     'api_state',
   ]
 
+  private readonly QUEST_TITLE_TO_VERIFY: Record<string, string> = {
+    '261': '海上輸送路の安全確保に努めよ！',
+    '256': '「潜水艦隊」出撃せよ！',
+    '888': '新編成「三川艦隊」、鉄底海峡に突入せよ！',
+    '303': '「演習」で練度向上！',
+    '402': '「遠征」を３回成功させよう！',
+    '503': '艦隊大整備！',
+    '605': '新装備「開発」指令',
+    '637': '「熟練搭乗員」養成',
+    '1123': '改良三座水上偵察機の増備',
+  }
+
+  private readonly QUEST_DETAIL_TO_VERIFY: Record<string, string> = {
+    '261': '鎮守府正面の対潜哨戒を反復実施し、安全な海上輸送路を確保せよ！',
+    '256': '潜水艦戦力を中核とした艦隊で中部海域哨戒線へ反復出撃、敵戦力を漸減せよ！',
+    '888':
+      '鉄底海峡戦果拡張：「鳥海」「青葉」「衣笠」「加古」「古鷹」「天龍」「夕張」の中から4隻を含む突入<br>艦隊を編成。南方海域前面及びサブ島沖海域、サーモン海域に突入、敵艦隊を撃滅せよ！',
+    '637': '勲章x2消費：「鳳翔」秘書艦に練度max及び改修max「九六式艦戦」を搭載、熟練搭乗員を養成せよ！<br>(任務達成後、部隊は消滅します)',
+    '1123':
+      '旗艦「利根改二」または「由良改二」第一スロに最大改修「零式水上偵察機」。「九七式艦攻(九三一空)」<br>x2廃棄、ボーキ950、新型航空兵装資材x2、開発資材x35、熟練搭乗員x2を準備！',
+  }
+
   private readonly REMODEL_SKIP_API_ID = [101, 201, 301, 306]
 
   private readonly appVersion: string
@@ -32,6 +54,7 @@ export class KCRDB implements Handler {
 
   private readonly questHashes = new Set()
 
+  private alterQuestDetected: boolean = false
   private remodelRequestMs?: number
   private remodelEquip?: any
 
@@ -126,8 +149,39 @@ export class KCRDB implements Handler {
 
   //#region quest
 
-  private async processQuestList(body: any) {
+  private verifyIfQuestAltered(list: any[]): void {
+    this.alterQuestDetected = !!(
+      Array.isArray(list) &&
+      list.find(quest => {
+        if (quest === -1) {
+          return false
+        }
+        const id: string = String((quest || {}).api_no)
+        if (this.QUEST_TITLE_TO_VERIFY[id] && quest.api_title !== this.QUEST_TITLE_TO_VERIFY[id]) {
+          return true
+        }
+        if (this.QUEST_DETAIL_TO_VERIFY[id] && quest.api_detail !== this.QUEST_DETAIL_TO_VERIFY[id]) {
+          return true
+        }
+        return false
+      })
+    )
+  }
+
+  private async processQuestList(body: any, reqBody: any) {
+    if (this.alterQuestDetected) {
+      return
+    }
+
+    const tabId: number = parseInt(reqBody?.api_tab_id)
     const tmpList = body.api_list
+    if (tabId === 0) {
+      this.verifyIfQuestAltered(tmpList)
+    }
+    if (this.alterQuestDetected) {
+      return
+    }
+
     if (!tmpList || !Array.isArray(tmpList)) {
       return
     }
@@ -157,6 +211,10 @@ export class KCRDB implements Handler {
   }
 
   private async processClearItemGet(body: any, reqBody: any) {
+    if (this.alterQuestDetected) {
+      return
+    }
+
     const payload: Record<string, any> = {
       api_quest_id: Number(reqBody.api_quest_id),
       data: body,
