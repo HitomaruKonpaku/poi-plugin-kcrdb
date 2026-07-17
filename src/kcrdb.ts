@@ -58,6 +58,17 @@ export class KCRDB implements Handler {
   private remodelRequestMs?: number
   private remodelEquip?: any
 
+  //#region event-reward
+
+  private currentMap: [number, number] = [0, 0]
+  private mapInfo: any[] = []
+  private sortieData: { map: string | null; difficulty: number | null } = {
+    map: null,
+    difficulty: null,
+  }
+
+  //#endregion
+
   constructor() {
     const pkg = readJsonSync(resolve(__dirname, '../package.json'))
     this.appVersion = _.get(window, 'POI_VERSION', 'unknown')
@@ -103,6 +114,17 @@ export class KCRDB implements Handler {
       'api_req_kousyou/remodel_slotlist_detail': [this.processRemodelSlotListDetail],
       'api_req_kousyou/remodel_slot': [this.processRemodelSlot],
       'api_req_kousyou/remodel_slot_recover': [this.processRemodelSlotRecover],
+
+      //#region event-reward
+
+      'api_get_member/mapinfo': [this.processMapInfo],
+      'api_req_map/select_eventmap_rank': [this.processSelectEventMapRank],
+      'api_req_map/start': [this.processStart],
+      'api_req_map/next': [this.processNext],
+      'api_req_sortie/battleresult': [this.processEventReward],
+      'api_req_combined_battle/battleresult': [this.processEventReward],
+
+      //#endregion
     }
 
     const handlers = dict[path] || []
@@ -358,6 +380,66 @@ export class KCRDB implements Handler {
     } finally {
       this.clearRemodelEquip()
     }
+  }
+
+  //#endregion
+
+  //#region event-reward
+
+  private processMapInfo(body: any) {
+    this.mapInfo = body.api_map_info
+  }
+
+  private processSelectEventMapRank(_body: any, reqBody: any) {
+    const mapId = [reqBody.api_maparea_id, reqBody.api_map_no].join('')
+    const mapData = this.mapInfo.find(i => i.api_id == mapId) || {}
+    if (mapData.api_eventmap) {
+      mapData.api_eventmap.api_selected_rank = Number(reqBody.api_rank)
+    }
+  }
+
+  private processStart(body: any) {
+    const world = Number(body.api_maparea_id)
+    const map = Number(body.api_mapinfo_no)
+    this.currentMap = [world, map]
+    this.sortieData.map = this.currentMap.join('-')
+    this.processNext(body)
+  }
+
+  private processNext(_body: any) {
+    if (!this.currentMap || !this.currentMap[0] || !this.currentMap[1]) {
+      return
+    }
+
+    const mapId = this.currentMap.join('')
+    const mapData = this.mapInfo.find(i => i.api_id == mapId) || {}
+    if (mapData.api_eventmap) {
+      this.sortieData.difficulty = mapData.api_eventmap.api_selected_rank || 0
+    }
+  }
+
+  private async processEventReward(body: any) {
+    if (!body.api_get_eventitem) {
+      return
+    }
+
+    if (!this.currentMap || !this.currentMap[0] || !this.currentMap[1]) {
+      return
+    }
+
+    if (!this.sortieData?.difficulty) {
+      return
+    }
+
+    const payload = {
+      world: this.currentMap[0],
+      map: this.currentMap[1],
+      difficulty: this.sortieData.difficulty,
+      api_get_eventitem: body.api_get_eventitem,
+      api_select_reward_dict: body.api_select_reward_dict,
+    }
+
+    await this.send('event-rewards', payload)
   }
 
   //#endregion
